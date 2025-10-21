@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Calendar, Award, MessageSquare, Settings, Home, Plus, Search, Edit, Trash2, Eye, CheckCircle, Clock, UserPlus, ClipboardCheck, X, AlertCircle, TrendingUp } from 'lucide-react';
-import { volunteersAPI, eventsAPI, tasksAPI, attendanceAPI } from './services/api';
+import { volunteersAPI, eventsAPI, tasksAPI, attendanceAPI } from '../services/api';
 
 const VolunteerPortal = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -280,7 +280,7 @@ const VolunteerPortal = () => {
             {tasks.slice(0, 4).map(task => {
               const borderColor = task.status === 'completed' ? '#10b981' : task.status === 'in-progress' ? '#f59e0b' : '#6b7280';
               return (
-                <div key={task._id} className="p-3 bg-gray-50 rounded-lg border-l-4" style={{ borderLeftColor }}>
+                <div key={task._id} className="p-3 bg-gray-50 rounded-lg border-l-4" style={{ borderLeftColor : 'blue' }}>
                   <div className="flex justify-between items-start mb-2">
                     <p className="font-semibold text-gray-800">{task.title}</p>
                     <span className={`px-2 py-1 rounded text-xs font-semibold ${
