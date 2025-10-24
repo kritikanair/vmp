@@ -1,8 +1,22 @@
-import React from 'react';
-import VolunteerPortal from './components/LoginPage.js';
+import React from "react";
+import VolunteerDashboard from "./components/VolunteerDashboard";
 
 function App() {
-  return <VolunteerPortal />;
+  const dummyUser = {
+    name: "Aaradhya",
+    hours: 42,
+    status: "Active"
+  };
+
+  const handleLogout = () => {
+    alert("Logged out!");
+  };
+
+  return (
+    <div>
+      <VolunteerDashboard user={dummyUser} onLogout={handleLogout} />
+    </div>
+  );
 }
 
 export default App;
