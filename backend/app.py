@@ -8,8 +8,7 @@ app = Flask(__name__)
 # CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:3001"}}, supports_credentials=True)
 
-app.config["MONGO_URI"] = "mongodb+srv://root:AKSHAR_SETU@cluster0.stj2ymn.mongodb.net/ngo_db?retryWrites=true&w=majority&appName=Cluster0"
-
+app.config["MONGO_URI"] = os.environ.get("MONGO_URI")
 mongo=PyMongo(app)
 
 
