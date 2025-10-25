@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, CheckCircle, FileText, Upload, LogOut, User, Award, TrendingUp } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 import './VolunteerDashboard.css';
 
-const VolunteerDashboard = ({ user, onLogout }) => {
+const VolunteerDashboard = () => {
+  const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [myTasks, setMyTasks] = useState([]);
   const [myEvents, setMyEvents] = useState([]);
@@ -120,7 +122,7 @@ const VolunteerDashboard = ({ user, onLogout }) => {
               </div>
               <div className="user-avatar">{user.name.charAt(0)}</div>
             </div>
-            <button className="logout-btn" onClick={onLogout}>
+            <button className="logout-btn" onClick={logout}>
               <LogOut size={20} />
               <span>Logout</span>
             </button>

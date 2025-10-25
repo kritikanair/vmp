@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { Users, Shield } from 'lucide-react';
+import { Users, Shield, Eye, EyeOff } from 'lucide-react';
+import { authAPI } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 import './LoginPage.css';
 
-const LoginPage = ({ onLogin }) => {
+const LoginPage = () => {
+  const { login } = useAuth();
   const [userType, setUserType] = useState('admin'); // 'admin' or 'volunteer'
   const [credentials, setCredentials] = useState({
     email: '',
@@ -10,6 +13,13 @@ const LoginPage = ({ onLogin }) => {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleUserTypeChange = (newUserType) => {
+    setUserType(newUserType);
+    setCredentials({ email: '', password: '' }); // Clear credentials when switching
+    setError(''); // Clear any errors
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,33 +27,33 @@ const LoginPage = ({ onLogin }) => {
     setLoading(true);
 
     try {
-      // Simulate login - Replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      let response;
 
       if (userType === 'admin') {
-        // Check admin credentials (demo credentials)
-        if (credentials.email === 'admin@akshar.com' && credentials.password === 'admin123') {
-          onLogin('admin', { email: credentials.email, name: 'Admin User' });
+        response = await authAPI.adminLogin(credentials);
+        if (response.data && response.data.admin && response.data.token) {
+          const { admin, token, refresh_token } = response.data;
+          login(token, refresh_token, { ...admin, type: 'admin' });
+          // Redirect will be handled by the auth context
         } else {
           setError('Invalid admin credentials');
         }
       } else {
-        // Check volunteer credentials (demo credentials)
-        if (credentials.email === 'volunteer@akshar.com' && credentials.password === 'volunteer123') {
-          onLogin('volunteer', { 
-            id: 1,
-            email: credentials.email, 
-            name: 'John Doe',
-            phone: '9876543210',
-            hours: 45,
-            status: 'active'
-          });
+        response = await authAPI.volunteerLogin(credentials);
+        if (response.data && response.data.volunteer && response.data.token) {
+          const { volunteer, token, refresh_token } = response.data;
+          login(token, refresh_token, { ...volunteer, type: 'volunteer' });
+          // Redirect will be handled by the auth context
         } else {
           setError('Invalid volunteer credentials');
         }
       }
     } catch (err) {
-      setError('Login failed. Please try again.');
+      if (err.response && err.response.data && err.response.data.error) {
+        setError(err.response.data.error);
+      } else {
+        setError('Login failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -68,14 +78,14 @@ const LoginPage = ({ onLogin }) => {
           <div className="user-type-selector">
             <button
               className={`type-btn ${userType === 'admin' ? 'active' : ''}`}
-              onClick={() => setUserType('admin')}
+              onClick={() => handleUserTypeChange('admin')}
             >
               <Shield size={24} />
               <span>Admin Login</span>
             </button>
             <button
               className={`type-btn ${userType === 'volunteer' ? 'active' : ''}`}
-              onClick={() => setUserType('volunteer')}
+              onClick={() => handleUserTypeChange('volunteer')}
             >
               <Users size={24} />
               <span>Volunteer Login</span>
@@ -102,13 +112,22 @@ const LoginPage = ({ onLogin }) => {
 
             <div className="form-group">
               <label>Password</label>
-              <input
-                type="password"
-                placeholder="Enter your password"
-                value={credentials.password}
-                onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
-                required
-              />
+              <div className="input-group">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter your password"
+                  value={credentials.password}
+                  onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+                  required
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
             </div>
 
             <button type="submit" className="login-btn" disabled={loading}>
@@ -123,17 +142,11 @@ const LoginPage = ({ onLogin }) => {
             </button>
           </form>
 
-          <div className="demo-credentials">
-            <p className="demo-title">Demo Credentials:</p>
-            <div className="demo-info">
-              <div>
-                <strong>Admin:</strong> admin@akshar.com / admin123
-              </div>
-              <div>
-                <strong>Volunteer:</strong> volunteer@akshar.com / volunteer123
-              </div>
-            </div>
-          </div>
+                 <div className="signup-section">
+                   <p>Default Admin Credentials:</p>
+                   <p><strong>Email:</strong> admin@aksharpaaul.com</p>
+                   <p><strong>Password:</strong> Admin@123</p>
+                 </div>
         </div>
 
         <div className="login-footer">

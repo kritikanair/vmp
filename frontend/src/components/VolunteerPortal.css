@@ -870,7 +870,6 @@ body {
 .task-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   margin-bottom: 0.75rem;
 }
 
@@ -937,7 +936,7 @@ body {
 }
 
 .task-status-select:hover {
-  border-color: #cbd5e1;
+  border-color: #cbd5e0;
 }
 
 .task-status-select:focus {
@@ -1374,3 +1373,4 @@ body {
     page-break-inside: avoid;
   }
 }
+

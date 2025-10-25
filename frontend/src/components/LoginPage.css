@@ -216,6 +216,35 @@
   color: #94a3b8;
 }
 
+.input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #a0aec0;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+}
+
+.password-toggle:hover {
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+}
+
 /* Login Button */
 .login-btn {
   display: flex;
@@ -337,4 +366,32 @@
   .demo-info {
     font-size: 12px;
   }
+}
+
+/* Credentials Section */
+.signup-section {
+  margin-top: 20px;
+  text-align: center;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.signup-section p {
+  margin: 5px 0;
+  color: #4a5568;
+  font-size: 14px;
+}
+
+.signup-section p:first-child {
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 10px;
+}
+
+.signup-section strong {
+  color: #667eea;
+  font-weight: 600;
 }
