@@ -12,9 +12,9 @@ import string
 
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__)   
 
-# CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+# CORS(app, resources={r"/": {"origins": ""}}, supports_credentials=True)
 CORS(app, resources={r"/api/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000"]}}, supports_credentials=True)
 
 app.config["MONGO_URI"] = os.environ.get("MONGO_URI")
@@ -23,10 +23,47 @@ app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET_KEY", "jwt-secret-key-
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)  # Access token expires in 1 hour
 app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7)  # Refresh token expires in 7 days
 
+def create_default_admin():
+    """Create a default admin account if it doesn't exist"""
+    if mongo is None:
+        print("❌ MongoDB not connected - cannot create admin")
+        return
+        
+    try:
+        print("🔍 Checking for existing admin...")
+        # Check if admin already exists
+        existing_admin = mongo.db.admins.find_one({"email": "admin@aksharpaaul.com"})
+        if not existing_admin:
+            print("📝 Creating new admin account...")
+            # Create default admin
+            admin_data = {
+                "name": "System Administrator",
+                "email": "admin@aksharpaaul.com",
+                "password": generate_password_hash("Admin@123"),
+                "created_at": datetime.utcnow(),
+                "role": "admin"
+            }
+            
+            result = mongo.db.admins.insert_one(admin_data)
+            print(f"✅ Default admin created successfully!")
+            print(f"   📧 Email: admin@aksharpaaul.com")
+            print(f"   🔑 Password: Admin@123")
+            print(f"   🆔 MongoDB ID: {result.inserted_id}")
+            print(f"   📊 Stored in collection: admins")
+        else:
+            print("✅ Default admin already exists in database")
+            print(f"   📧 Email: {existing_admin['email']}")
+            print(f"   🆔 MongoDB ID: {existing_admin['_id']}")
+    except Exception as e:
+        print(f"❌ Error creating default admin: {e}")
+
 # Initialize MongoDB
 try:
     mongo = PyMongo(app)
     print("MongoDB connection initialized successfully")
+    
+    # Create default admin if it doesn't exist
+    create_default_admin()
 except Exception as e:
     print(f"MongoDB connection error: {e}")
     mongo = None
@@ -107,60 +144,6 @@ def after_request(response):
     return response
 
 # ---------- ADMIN AUTHENTICATION ----------
-@app.route('/api/admin/signup', methods=['POST'])
-def admin_signup():
-    if mongo is None:
-        return jsonify({"error": "Database connection not available"}), 500
-        
-    data = request.get_json()
-    print(f"Admin signup request received: {data}")
-    
-    # Validate required fields
-    if not data or not data.get('name') or not data.get('email') or not data.get('password'):
-        return jsonify({"error": "Name, email, and password are required"}), 400
-    
-    try:
-        # Check if admin already exists
-        existing_admin = mongo.db.admins.find_one({"email": data['email']})
-        if existing_admin:
-            return jsonify({"error": "Admin with this email already exists"}), 400
-        
-        # Hash password
-        hashed_password = generate_password_hash(data['password'])
-        
-        # Create admin document
-        admin_data = {
-            "name": data['name'],
-            "email": data['email'],
-            "password": hashed_password,
-            "created_at": datetime.utcnow(),
-            "role": "admin"
-        }
-        
-        # Insert admin into database
-        result = mongo.db.admins.insert_one(admin_data)
-        admin_data['_id'] = str(result.inserted_id)
-        
-        # Generate JWT tokens
-        access_token, refresh_token = generate_tokens(
-            admin_data['_id'], 
-            'admin', 
-            admin_data['email']
-        )
-
-        # Remove password from response
-        del admin_data['password']
-        
-        print(f"Admin created successfully: {admin_data['email']}")
-        return jsonify({
-            "message": "Admin created successfully",
-            "admin": admin_data,
-            "token": access_token,
-            "refresh_token": refresh_token
-        }), 201
-    except Exception as e:
-        print(f"Error creating admin: {str(e)}")
-        return jsonify({"error": f"Database error: {str(e)}"}), 500
 
 @app.route('/api/admin/login', methods=['POST'])
 def admin_login():
@@ -464,5 +447,29 @@ def test_mongo():
 def api_test():
     return jsonify({"message": "API is working!", "status": "success"})
 
-if __name__ == '__main__':
+@app.route('/api/admin/verify')
+def verify_admin():
+    """Verify if default admin exists in database"""
+    if mongo is None:
+        return jsonify({"error": "Database connection not available"}), 500
+    
+    try:
+        admin = mongo.db.admins.find_one({"email": "admin@aksharpaaul.com"})
+        if admin:
+            return jsonify({
+                "exists": True,
+                "admin": {
+                    "name": admin["name"],
+                    "email": admin["email"],
+                    "role": admin["role"],
+                    "created_at": admin["created_at"],
+                    "id": str(admin["_id"])
+                }
+            })
+        else:
+            return jsonify({"exists": False})
+    except Exception as e:
+        return jsonify({"error": f"Database error: {str(e)}"}), 500
+
+if __name__ == '_main_':
     app.run(debug=True)
