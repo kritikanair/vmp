@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://127.0.0.1:5000/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -8,6 +8,42 @@ const api = axios.create({
     'Content-Type': 'application/json'
   }
 });
+
+// Add token to requests automatically
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Handle 401 errors (unauthorized)
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token expired or invalid
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/';
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Auth API
+export const authAPI = {
+  login: (email, password, userType) => 
+    api.post('/auth/login', { email, password, userType }),
+  logout: () => api.post('/auth/logout'),
+  getCurrentUser: () => api.get('/auth/me')
+};
 
 // Volunteers API
 export const volunteersAPI = {

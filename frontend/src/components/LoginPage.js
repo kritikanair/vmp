@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Users, Shield } from 'lucide-react';
+import { authAPI } from '../services/api';
 import './LoginPage.css';
 
 const LoginPage = ({ onLogin }) => {
-  const [userType, setUserType] = useState('admin'); // 'admin' or 'volunteer'
+  const [userType, setUserType] = useState('admin');
   const [credentials, setCredentials] = useState({
     email: '',
     password: ''
@@ -17,33 +18,22 @@ const LoginPage = ({ onLogin }) => {
     setLoading(true);
 
     try {
-      // Simulate login - Replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await authAPI.login(
+        credentials.email,
+        credentials.password,
+        userType
+      );
 
-      if (userType === 'admin') {
-        // Check admin credentials (demo credentials)
-        if (credentials.email === 'admin@akshar.com' && credentials.password === 'admin123') {
-          onLogin('admin', { email: credentials.email, name: 'Admin User' });
-        } else {
-          setError('Invalid admin credentials');
-        }
-      } else {
-        // Check volunteer credentials (demo credentials)
-        if (credentials.email === 'volunteer@akshar.com' && credentials.password === 'volunteer123') {
-          onLogin('volunteer', { 
-            id: 1,
-            email: credentials.email, 
-            name: 'John Doe',
-            phone: '9876543210',
-            hours: 45,
-            status: 'active'
-          });
-        } else {
-          setError('Invalid volunteer credentials');
-        }
-      }
+      // Store token and user data
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem('userType', response.data.userType);
+
+      // Call onLogin with user data
+      onLogin(response.data.userType, response.data.user);
     } catch (err) {
-      setError('Login failed. Please try again.');
+      console.error('Login error:', err);
+      setError(err.response?.data?.error || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -51,6 +41,7 @@ const LoginPage = ({ onLogin }) => {
 
   return (
     <div className="login-container">
+      {/* Rest of your login page JSX stays the same */}
       <div className="login-background">
         <div className="floating-shape shape-1"></div>
         <div className="floating-shape shape-2"></div>
@@ -130,7 +121,7 @@ const LoginPage = ({ onLogin }) => {
                 <strong>Admin:</strong> admin@akshar.com / admin123
               </div>
               <div>
-                <strong>Volunteer:</strong> volunteer@akshar.com / volunteer123
+                <strong>Volunteer:</strong> Use any volunteer's email / same as email
               </div>
             </div>
           </div>

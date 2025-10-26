@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Calendar, ClipboardCheck, CheckCircle, Clock, TrendingUp, Plus, X, Edit, Trash2, Search, Filter } from 'lucide-react';
+import { authAPI } from '../services/api';
+import { Users, Calendar, Award, MessageSquare, Settings, Home, Plus, Search, Filter, Edit, Trash2, Eye, CheckCircle, Clock, UserPlus, ClipboardCheck, MapPin, User, Mail, Phone, X, FileText, AlertCircle, TrendingUp, LogOut } from 'lucide-react';
 import { volunteersAPI, eventsAPI, tasksAPI, attendanceAPI } from '../services/api';
 import './VolunteerPortal.css';
 
-const VolunteerPortal = () => {
+// Add this import at the top
+
+
+
+const VolunteerPortal = ({ user, onLogout }) => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [loading, setLoading] = useState(false);
   
@@ -196,6 +201,14 @@ const VolunteerPortal = () => {
     v.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     v.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  const handleLogout = () => {
+    if (window.confirm('Are you sure you want to logout?')) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('userType');
+      onLogout();
+    }
+  };
 
   const stats = {
     totalVolunteers: volunteers.length,
@@ -231,6 +244,10 @@ const VolunteerPortal = () => {
           </div>
           <div className="header-right">
             <div className="user-avatar">A</div>
+            <button className="logout-btn" onClick={handleLogout}>
+              <LogOut size={20} />
+              <span>Logout</span>
+            </button>
           </div>
         </div>
       </header>
