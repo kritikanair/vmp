@@ -68,6 +68,7 @@ REACT_APP_API_URL=http://localhost:5000/api
 * Member 2 - Muskan Sahay
 * Member 3 - Niyati Dave 
 * Member 4 - Pranami Mishra
+* Member 5 - Rajnandini Kathote
 
 This project is licensed under the MIT License. See the LICENSE file for details.
 
