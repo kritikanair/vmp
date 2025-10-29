@@ -35,21 +35,24 @@ It provides an easy-to-use platform to manage volunteering sessions, log hours, 
 
 ### Setup and Run Frontend
 
-cd frontend
-npm install
+cd frontend<br>
+npm install<br>
 npm start
 
 The frontend app will be available at: [http://localhost:3000](http://localhost:3000)
 
 ### Setup and Run Backend
 
-cd backend
-python -m venv venv
-source venv/bin/activate       # Windows: venv\Scripts\activate
+cd backend<br>
+python -m venv venv<br>
+source venv/bin/activate       # Windows: venv\Scripts\activate<br>
 pip install -r requirements.txt
 
+### For Python:
+python app.py
+
 ### For Flask:
-export FLASK_APP=app.py
+export FLASK_APP=app.py<br>
 flask run
 
 ### OR for Django:
@@ -69,6 +72,3 @@ REACT_APP_API_URL=http://localhost:5000/api
 * Member 3 - Niyati Dave 
 * Member 4 - Pranami Mishra
 * Member 5 - Rajnandini Kathote
-
-This project is licensed under the MIT License. See the LICENSE file for details.
-
